@@ -11,8 +11,8 @@ font_size = 28
 
 # Set correct path for Windows or Raspberry Pi(Linux)
 if os.name == "nt":
-    logo_path = "OIC\\ozlogo_shadow.jpg"
-    file_path = f"OIC\\north\\north_lrs_{today}.csv"
+    logo_path = "C:\\Users\\brian\\Documents\\Python\\OIC\\ozlogo_shadow.jpg"
+    file_path = f"C:\\Users\\brian\\Documents\\Python\\OIC\\north\\north_lrs_{today}.csv"
     msg_path = "C:\\Users\\brian\\Documents\\Python\\OIC\\messages\\"
 else:
     logo_path = "/home/pi/OIC/ozlogo_shadow.jpg"
