@@ -10,7 +10,7 @@ import os
 ######################################################################
 
 today = date.isoformat(date.today())
-# today = "2019-09-03"
+# today = "2019-10-12" # Used for testing a particular date
 
 north_rink = []  # list that will hold north rink daily schedule
 north_locker_rooms = [[1, 3], [2, 4]]  # Locker room numbers in North
@@ -35,15 +35,17 @@ def scrape_oic_schedule(date):
     # The following lines set form fields on the requested page to search for north rink events by date
     browser["ctl00_ContentPlaceHolder1_txtFromDate_dateInput_ClientState"] = '{"enabled":true,"emptyMessage":"","validationText":"'+today_with_time+'","valueAsString":"'+today_with_time+'","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00","lastSetTextBoxValue":"'+xx_xx_xxxx+'"}'
     browser["ctl00_ContentPlaceHolder1_txtThroughDate_dateInput_ClientState"] = '{"enabled":true,"emptyMessage":"","validationText":"'+today_with_time+'","valueAsString":"'+today_with_time+'","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00","lastSetTextBoxValue":"'+xx_xx_xxxx+'"}'
-    browser["ctl00_ContentPlaceHolder1_cboSortBy_ClientState"] = '{"logEntries":[],"value":"11","text":"Facility","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
+    browser["ctl00_ContentPlaceHolder1_cboSortBy_ClientState"] = '{"logEntries":[],"value":"2","text":"Start Time","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
     browser["ctl00$ContentPlaceHolder1$txtFromDate"] = today
     browser["ctl00$ContentPlaceHolder1$txtFromDate$dateInput"] = xx_xx_xxxx
     browser["ctl00_ContentPlaceHolder1_txtFromDate_calendar_AD"] = '[[1980,1,1],[2099,12,30],['+xxxx_xx_xx+']]'
+    browser["ctl00_ContentPlaceHolder1_txtFromDate_calendar_SD"] = '[['+xxxx_xx_xx+']]'
     browser["ctl00$ContentPlaceHolder1$txtThroughDate"] = today
     browser["ctl00$ContentPlaceHolder1$txtThroughDate$dateInput"] = xx_xx_xxxx
     browser["ctl00_ContentPlaceHolder1_txtThroughDate_calendar_AD"] = '[[1980,1,1],[2099,12,30],['+xxxx_xx_xx+']]'
-    browser["ctl00_ContentPlaceHolder1_cboFacility_ClientState"] = '{"logEntries":[],"value":"","text":"North Rink","enabled":true,"checkedIndices":[0],"checkedItemsTextOverflows":false}'
-    browser["ctl00$ContentPlaceHolder1$cboFacility"] = 'North Rink'
+    browser["ctl00_ContentPlaceHolder1_txtThroughDate_calendar_SD"] = '[['+xxxx_xx_xx+']]'
+    browser["ctl00_ContentPlaceHolder1_cboFacility_ClientState"] = '{"logEntries":[],"value":"","text":"3 items checked","enabled":true,"checkedIndices":[4,1,2],"checkedItemsTextOverflows":true}'
+    browser["ctl00$ContentPlaceHolder1$cboFacility"] = 'North 1, North 2, North Rink'
 
     response = browser.submit_selected()
     # print(response.text)
@@ -63,6 +65,19 @@ def scrape_oic_schedule(date):
         # print(cols) # Used for testing
     # print(north_rink) # Used for testing
 
+    # Replace some strings so the Locker Room Display board displays correctly 
+    for item in north_rink:
+        if "Ozaukee Youth Hockey Association" in item[3]:
+            item[3] = "OYHA"
+        elif "Ozaukee County Hockey League" in item[3]:
+            if "Novice" in item[3]:
+                item[3] = "OCHL Novice"
+            elif "Intermediate" in item[3]:
+                item[3] = "OCHL Intermediate"
+            elif "Competitive" in item[3]:
+                item[3] = "OCHL Competitive"
+
+
 def add_locker_rooms_to_schedule(locker_rooms, rink):
     '''Adds locker room assignments dynamically to north_rink list.'''
 
@@ -72,7 +87,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     need_game_locker_rooms = ("Cedarburg Hockey", "Homestead Hockey", "Lakeshore Lightning",
                               "Concordia ACHA", "Concordia University Men", "Concordia University Women")
     # these events need locker rooms assigned
-    # need_locker_rooms = ("NA: North 1", "NA: North 2", "Camp", "Clinic",
+    # need_locker_rooms = ("North 1", "North 2", "Camp", "Clinic",
     #                      "Game", "Tournament", "Practice", "Open Hockey", "Private", "Roller Hockey",
     #                      "Tryouts")
 
@@ -122,19 +137,20 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
         elif event not in no_locker_room:
             if event == "Practice" and "vs" not in customer and customer != "Learn to Play":
                 rink[x].append(locker_rooms[lr_flag][1])
-                rink[x].append(" ")
+                # rink[x].append(" ") # THIS SHOULD BE USED WHEN "TEAM VS TEAM" COMES BACK ON THE SCHEDULE #
+                rink[x].append(locker_rooms[lr_flag][0])
             else:
                 rink[x].append(locker_rooms[lr_flag][1])
                 rink[x].append(locker_rooms[lr_flag][0])
-            if event == "NA: North 1" and na_north_flag == "on":
+            if event == "North 1" and na_north_flag == "on":
                 x += 1
                 na_north_flag = "off"
                 continue
-            elif event == "NA: North 2" and na_north_flag == "on":
+            elif event == "North 2" and na_north_flag == "on":
                 x += 1
                 na_north_flag = "off"
                 continue
-            elif event == "NA: North 2" or event == "NA: North 1" and na_north_flag == "off":
+            elif event == "North 2" or event == "North 1" and na_north_flag == "off":
                 if lr_flag == 0:
                     lr_flag = 1
                 else:
