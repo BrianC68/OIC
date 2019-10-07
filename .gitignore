@@ -1,5 +1,6 @@
 north/
 south/
+old/
 .vscode
 north_locker_rooms_old.py
 north_locker_rooms_new_scrape.py
