@@ -70,6 +70,9 @@ def scrape_oic_schedule(date):
     for item in south_rink:
         if "Ozaukee Youth Hockey Association" in item[3]:
             item[3] = "OYHA"
+            # Adds teams who are practicing to display
+            if  "Practice-" in item[0]:
+                item[3] += f'{item[0].replace("Practice-", " ")}'
         elif "Ozaukee County Hockey League" in item[3]:
             if "Novice" in item[3]:
                 item[3] = "OCHL Novice"
