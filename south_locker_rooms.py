@@ -9,6 +9,9 @@ import os
 ## This file will be run by cron job every morning @ 4:30 AM        ##
 ######################################################################
 
+months = {"1": "January", "2": "February", "3": "March", "4": "April", "5": "May", 
+            "6": "June", "7": "July", "8": "August", "9": "September", "10": "October", "11": "November", "12": "December"}
+
 today = date.isoformat(date.today())
 # today = "2019-10-12" # Used for testing a particular date
 
@@ -66,6 +69,51 @@ def scrape_oic_schedule(date):
         # print(cols) # Used for testing
     # print(south_rink) # Used for testing
 
+def scrape_oyha_teams(the_date):
+    '''Scrapes OIC Rink League Schedule website for OYHA and Opponent teams.'''
+
+    oyha_events = [] # list that will hold OYHA teams to merge with south_rink[]
+    today_split = the_date.split("-")
+    today_string = f"{months[today_split[1]]} {today_split[2]}, {today_split[0]}"
+
+    url = "https://ozaukeeicecenter.maxgalaxy.net/LeagueScheduleList.aspx?ID=13"
+    response = requests.get(url)
+
+    # Request the web page
+    soup = BeautifulSoup(response.text, "html.parser")
+    # Get all div's with class = "activityGroupName"
+    dates = soup.find_all(class_="activityGroupName")
+
+    # Loop through and find today's date then find the next table with the days events
+    for date in dates:
+        if today_string in date.get_text():
+            table = date.find_next("table")
+
+    # Get all rows from the table
+    rows = table.find_all("tr")
+
+    # Collect pertinent data from the rows
+    for row in rows:
+        cols = row.find_all("td")
+        # If it's the header row or it's for North Rink, skip the row
+        if cols[0].get_text().strip() == "Start Time" or cols[3].get_text().strip() in ["North Rink", "North 1", "North 2", "North 3"]:
+            continue
+        else:
+            oyha_events.append([cols[0].get_text().strip(), cols[6].get_text().strip(), cols[4].get_text().strip()])
+
+        # Merge OYHA team names with south_rink[] list of events
+    # If oyha_events[] list is empty, skip the merge
+    if len(oyha_events) == 0:
+        pass
+    else:
+        for event in oyha_events:
+            for item in south_rink:
+                if event[0] == item[1]:
+                    if event[2] == "":
+                        item[3] = event[1]
+                    else:
+                        item[3] = f"{event[1]} vs {event[2]}"
+
     # Replace some strings so the Locker Room Display board displays correctly 
     for item in south_rink:
         if "Ozaukee Youth Hockey Association" in item[3]:
@@ -73,13 +121,44 @@ def scrape_oic_schedule(date):
             # Adds teams who are practicing to display
             if  "Practice-" in item[0]:
                 item[3] += f'{item[0].replace("Practice-", " ")}'
-        elif "Ozaukee County Hockey League" in item[3]:
-            if "Novice" in item[3]:
-                item[3] = "OCHL Novice"
-            elif "Intermediate" in item[3]:
-                item[3] = "OCHL Intermediate"
-            elif "Competitive" in item[3]:
-                item[3] = "OCHL Competitive"
+        elif "Wisconsin Elite Hockey League" in item[3]:
+            item[3] = "WEHL"
+        elif "OWHL" in item[3]:
+            item[3] = "OWHL"
+
+
+def scrape_ochl_games():
+    '''Scrapes OIC Rink League Schedule website for OYHA and Opponent teams.'''
+
+    ochl_games = [] # List that will hold OCHL game data for South Rink
+
+    url = "https://www.ozaukeeicecenter.org/schedule/day/league_instance/102447?subseason=633604"
+    response = requests.get(url)
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    # Get game schedule table
+    table = soup.find(class_="statTable")
+    # Get table body which contains game or practice rows
+    tbody = table.find_next("tbody")
+
+    # Get the rows
+    rows = tbody.find_all("tr")
+
+    # Get the data from the pertinent table cells: home, visitor, rink, start time
+    for row in rows:
+        cols = row.find_all("td")
+        if "South Rink" in cols[4].get_text():
+            ochl_games.append([cols[2].find("a").get_text(), cols[0].find("a").get_text(), cols[4].find("div").get_text().strip(), cols[5].find("span").get_text().strip(" CDT")])
+
+    # Merge OCHL games with south_rink[] list of events
+    # If ochl_games[] list is empty, skip the merge
+    if len(ochl_games) == 0:
+        pass
+    else:
+        for game in ochl_games:
+            for item in south_rink:
+                if game[3] == item[1]:
+                    item[3] = f"{game[0]} vs {game[1]}"
 
 
 def add_locker_rooms_to_schedule(locker_rooms, rink):
@@ -143,10 +222,14 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
                 else:
                     lr_flag = 0
         elif event not in no_locker_room:
-            if event == "Practice" and "vs" not in customer and customer != "Learn to Play":
-                rink[x].append(locker_rooms[lr_flag][1])
-                # rink[x].append(" ") # THIS SHOULD BE USED WHEN "TEAM VS TEAM" COMES BACK ON THE SCHEDULE
-                rink[x].append(locker_rooms[lr_flag][0])
+            if  "Practice" in event and "vs" not in customer and customer != "Learn to Play":
+                if "Mite" in customer:
+                    rink[x].append(locker_rooms[lr_flag][1])
+                    rink[x].append(locker_rooms[lr_flag][0])
+                else:
+                    rink[x].append(locker_rooms[lr_flag][1])
+                    rink[x].append(" ") # THIS SHOULD BE USED WHEN "TEAM VS TEAM" COMES BACK ON THE SCHEDULE
+                    # rink[x].append(locker_rooms[lr_flag][0])
             else:
                 rink[x].append(locker_rooms[lr_flag][1])
                 rink[x].append(locker_rooms[lr_flag][0])
@@ -207,6 +290,8 @@ def save_schedule_to_file(south, date):
 if date.weekday(date.today()) != 5 and date.weekday(date.today()) != 6:
     # get data from OIC schedule website
     scrape_oic_schedule(today)
+    # add OYHA teams to south_rink[]
+    scrape_oyha_teams(today)
     # add locker rooms to rink schedules
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     # save rink schedules to csv files
@@ -217,11 +302,14 @@ if date.weekday(date.today()) == 4:
     saturday = date.isoformat(date.today() + timedelta(days=1))
     south_rink.clear()
     scrape_oic_schedule(saturday)
+    scrape_oyha_teams(saturday)
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     save_schedule_to_file(south_rink, saturday)
 
     sunday = date.isoformat(date.today() + timedelta(days=2))
     south_rink.clear()
     scrape_oic_schedule(sunday)
+    scrape_oyha_teams(sunday)
+    scrape_ochl_games()
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     save_schedule_to_file(south_rink, sunday)
