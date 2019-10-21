@@ -132,7 +132,7 @@ def scrape_oyha_teams(the_date):
 
 
 def scrape_ochl_games():
-    '''Scrapes OIC Rink League Schedule website for OYHA and Opponent teams.'''
+    '''Scrapes OCHL Schedule website for teams.'''
 
     ochl_games = [] # List that will hold OCHL game data for North Rink
 
@@ -166,9 +166,9 @@ def scrape_ochl_games():
 
 
 def scrape_owhl_teams(the_date):
-    '''Scrapes OIC Rink League Schedule website for OYHA and Opponent teams.'''
+    '''Scrapes OIC Rink League Schedule website for OWHL teams.'''
 
-    owhl_events = [] # list that will hold OYHA teams to merge with north_rink[]
+    owhl_events = [] # list that will hold OWHL teams to merge with north_rink[]
     today_split = the_date.split("-")
     today_string = f"{months[today_split[1]]} {today_split[2]}, {today_split[0]}"
 

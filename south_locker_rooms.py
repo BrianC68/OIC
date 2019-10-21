@@ -101,7 +101,7 @@ def scrape_oyha_teams(the_date):
         else:
             oyha_events.append([cols[0].get_text().strip(), cols[6].get_text().strip(), cols[4].get_text().strip()])
 
-        # Merge OYHA team names with south_rink[] list of events
+    # Merge OYHA team names with south_rink[] list of events
     # If oyha_events[] list is empty, skip the merge
     if len(oyha_events) == 0:
         pass
@@ -128,7 +128,7 @@ def scrape_oyha_teams(the_date):
 
 
 def scrape_ochl_games():
-    '''Scrapes OIC Rink League Schedule website for OYHA and Opponent teams.'''
+    '''Scrapes OCHL League Schedule website for OCHL teams.'''
 
     ochl_games = [] # List that will hold OCHL game data for South Rink
 
