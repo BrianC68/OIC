@@ -11,11 +11,11 @@ font_size = 28
 
 # Set correct path for Windows or Raspberry Pi(Linux)
 if os.name == "nt":
-    logo_path = "C:\\Users\\brian\\Documents\\Python\\OIC\\ozlogo_shadow.jpg"
+    logo_path = "C:\\Users\\brian\\Documents\\Python\\OIC\\oz_ice_logo.jpg"
     file_path = f"C:\\Users\\brian\\Documents\\Python\\OIC\\north\\north_lrs_{today}.csv"
     msg_path = "C:\\Users\\brian\\Documents\\Python\\OIC\\messages\\"
 else:
-    logo_path = "/home/pi/OIC/ozlogo_shadow.jpg"
+    logo_path = "/home/pi/OIC/oz_ice_logo.jpg"
     file_path = f"/home/pi/OIC/north/north_lrs_{today}.csv"
     msg_path = "/home/pi/OIC/messages/"
 
@@ -34,7 +34,7 @@ oiclogo = ImageTk.PhotoImage(file=logo_path)
 oiclabel = Label(mainframe, image=oiclogo, bg="#ffffff")
 oiclabel.grid(row=0, columnspan=5, ipady=5)
 rinklabel_r = Label(mainframe, text=f"{days_of_the_week[date.weekday(date.today())]}\n{display_date}", font=(font, 32, "bold"), bg="#ffffff")
-rinklabel_r.grid(row=0, columnspan=5, sticky=E, ipadx=200)
+rinklabel_r.grid(row=0, columnspan=5, sticky=E, ipadx=180)
 
 mainframe.grid_columnconfigure(0, weight=1)
 mainframe.grid_columnconfigure(1, weight=1)
@@ -149,7 +149,7 @@ if len(display_msgs) != 0:
     msg_oiclabel = Label(msg_frame, image=oiclogo, bg="#ffffff")
     msg_oiclabel.grid(row=0, columnspan=5, ipady=5)
     msg_rinklabel_r = Label(msg_frame, text=f"{days_of_the_week[date.weekday(date.today())]}\n{display_date}", font=(font, 32, "bold"), bg="#ffffff")
-    msg_rinklabel_r.grid(row=0, columnspan=5, sticky=E, ipadx=200)
+    msg_rinklabel_r.grid(row=0, columnspan=5, sticky=E, ipadx=180)
     msg_file = ImageTk.PhotoImage(file=f"{msg_path}{display_msgs[0]}")
     msg = Label(msg_frame, image=msg_file, bg="#ffffff")
 
