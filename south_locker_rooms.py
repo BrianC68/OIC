@@ -74,7 +74,7 @@ def scrape_oyha_teams(the_date):
 
     oyha_events = [] # list that will hold OYHA teams to merge with south_rink[]
     today_split = the_date.split("-")
-    today_string = f"{months[today_split[1]]} {today_split[2]}, {today_split[0]}"
+    today_string = f"{months[today_split[1]]} {today_split[2].lstrip('0')}, {today_split[0]}"
 
     url = "https://ozaukeeicecenter.maxgalaxy.net/LeagueScheduleList.aspx?ID=13"
     response = requests.get(url)
@@ -85,9 +85,9 @@ def scrape_oyha_teams(the_date):
     dates = soup.find_all(class_="activityGroupName")
 
     # Loop through and find today's date then find the next table with the days events
-    for date in dates:
-        if today_string in date.get_text():
-            table = date.find_next("table")
+    for each in dates:
+        if today_string in each.get_text():
+            table = each.find_next("table")
 
     # Get all rows from the table
     rows = table.find_all("tr")
@@ -148,7 +148,7 @@ def scrape_ochl_games():
     for row in rows:
         cols = row.find_all("td")
         if "South Rink" in cols[4].get_text():
-            ochl_games.append([cols[2].find("a").get_text(), cols[0].find("a").get_text(), cols[4].find("div").get_text().strip(), cols[5].find("span").get_text().strip(" CDT")])
+            ochl_games.append([cols[2].find("a").get_text(), cols[0].find("a").get_text(), cols[4].find("div").get_text().strip(), cols[5].find("span").get_text().strip(" CST")])
 
     # Merge OCHL games with south_rink[] list of events
     # If ochl_games[] list is empty, skip the merge
