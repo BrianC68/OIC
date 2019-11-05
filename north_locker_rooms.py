@@ -276,15 +276,12 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
             else:
                 rink[x].append(locker_rooms[lr_flag][1])
                 rink[x].append(locker_rooms[lr_flag][0])
-            if event == "North 1" and na_north_flag == "on":
+            # Check for mite practices and games and keep the same locker rooms for split ice
+            if "Mite" in customer and "vs" in customer and na_north_flag == "on":
                 x += 1
                 na_north_flag = "off"
                 continue
-            elif event == "North 2" and na_north_flag == "on":
-                x += 1
-                na_north_flag = "off"
-                continue
-            elif event == "North 2" or event == "North 1" and na_north_flag == "off":
+            elif "Mite" in customer and "vs" in customer and na_north_flag == "off":
                 if lr_flag == 0:
                     lr_flag = 1
                 else:

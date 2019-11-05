@@ -233,15 +233,11 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
             else:
                 rink[x].append(locker_rooms[lr_flag][1])
                 rink[x].append(locker_rooms[lr_flag][0])
-            if event == "South 1" and na_south_flag == "on":
+            if "Mite" in customer and "vs" in customer and na_south_flag == "on":
                 x += 1
                 na_south_flag = "off"
                 continue
-            elif event == "South 2" and na_south_flag == "on":
-                x += 1
-                na_south_flag = "off"
-                continue
-            elif event == "South 2" or event == "South 1" and na_south_flag == "off":
+            elif "Mite" in customer and "vs" in customer and na_south_flag == "off":
                 if lr_flag == 0:
                     lr_flag = 1
                 else:
