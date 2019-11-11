@@ -25,6 +25,10 @@ def application(files):
         if value.get() == "----------------------":
             messagebox.showinfo("Choose File", "Please choose a file to edit.", parent=app_frame)
             return
+        elif len(entries) != 0:
+            messagebox.showinfo("Warning!", "You must first close the current file!", parent=app_frame)
+            return
+
         events = get_file(value.get())
         # Call display_lr_assignments() and send events file to be displayed in the application window
         display_lr_assignments(events)
@@ -85,7 +89,7 @@ def application(files):
     dropdown.grid(row=0, column=1, columnspan=2, sticky=W)
     select = Button(app_frame, text="Open File", command=send_file_name)
     select.grid(row=0, column=3, sticky=W)
-    clear = Button(app_frame, text="Clear", command=restart)
+    clear = Button(app_frame, text="Close File", command=restart)
     clear.grid(row=0, column=4, sticky=W)
     save_file = Button(app_frame, text="Save File", command=save_to_file)
     save_file.grid(row=0, column=5, sticky=W)
@@ -111,7 +115,7 @@ def application(files):
     root.mainloop()
 
 def get_locker_room_assgnmnt_files_list():
-    """Read file names in OIC/north directly"""
+    """Read file names in OIC/north folder"""
     files = os.listdir(lrs_path)
     files.sort(reverse=True) # Sort list newest to oldest
     return files
