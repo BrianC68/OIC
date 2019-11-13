@@ -66,6 +66,11 @@ try:
         for row in filereader:
             events.append(row)
         thefile.close()
+    # If the days events exceed 12, reduce font size to 24
+    if len(events) == 13:
+        font_size = 24
+    elif len(events) > 13:
+        font_size = 20
 except FileNotFoundError:
     err_message = Label(mainframe, text="File not found error, call or text Brian Christensen @ 262.339.4402", font=(font, font_size, "bold"), bg="#ffffff", fg="red")
     err_message.grid(row=2, columnspan=6, sticky=S, ipady=10)
