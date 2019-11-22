@@ -233,11 +233,12 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
             else:
                 rink[x].append(locker_rooms[lr_flag][1])
                 rink[x].append(locker_rooms[lr_flag][0])
-            if "Mite" in customer and "vs" in customer and na_south_flag == "on":
+            # Check for mite practices and games and keep the same locker rooms for split ice
+            if "Mite" in customer and na_south_flag == "on": # Removed (and "vs" in customer) condition in case only one mite team is practicing
                 x += 1
                 na_south_flag = "off"
                 continue
-            elif "Mite" in customer and "vs" in customer and na_south_flag == "off":
+            elif "Mite" in customer and na_south_flag == "off": # Removed (and "vs" in customer) condition in case only one mite team is practicing
                 if lr_flag == 0:
                     lr_flag = 1
                 else:

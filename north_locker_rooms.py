@@ -12,7 +12,7 @@ import os
 months = {"1": "January", "2": "February", "3": "March", "4": "April", "5": "May", 
             "6": "June", "7": "July", "8": "August", "9": "September", "10": "October", "11": "November", "12": "December"}
 
-# today = "2019-10-19" # Used for testing a particular date
+# today = "2019-11-21" # Used for testing a particular date
 today = date.isoformat(date.today())
 
 north_rink = []  # list that will hold north rink daily schedule
@@ -277,11 +277,11 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
                 rink[x].append(locker_rooms[lr_flag][1])
                 rink[x].append(locker_rooms[lr_flag][0])
             # Check for mite practices and games and keep the same locker rooms for split ice
-            if "Mite" in customer and "vs" in customer and na_north_flag == "on":
+            if "Mite" in customer and na_north_flag == "on": # Removed (and "vs" in customer) condition in case only one mite team is practicing
                 x += 1
                 na_north_flag = "off"
                 continue
-            elif "Mite" in customer and "vs" in customer and na_north_flag == "off":
+            elif "Mite" in customer and na_north_flag == "off": # Removed (and "vs" in customer) condition in case only one mite team is practicing
                 if lr_flag == 0:
                     lr_flag = 1
                 else:
