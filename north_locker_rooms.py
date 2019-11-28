@@ -85,12 +85,19 @@ def scrape_oyha_teams(the_date):
     dates = soup.find_all(class_="activityGroupName")
 
     # Loop through and find today's date then find the next table with the days events
+    table = []
     for each in dates:
         if today_string in each.get_text():
             table = each.find_next("table")
 
     # Get all rows from the table
-    rows = table.find_all("tr")
+    if len(table) == 0:
+        # Remove the rink from list as it is not needed anymore
+        for item in north_rink:
+            item.pop()
+        return
+    else:
+        rows = table.find_all("tr")
 
     # Collect pertinent data from the rows
     for row in rows:
@@ -123,8 +130,8 @@ def scrape_oyha_teams(the_date):
         if "Ozaukee Youth Hockey Association" in item[3]:
             item[3] = "OYHA"
             # Adds teams who are practicing to display
-            if  "Practice-" in item[0]:
-                item[3] += f'{item[0].replace("Practice-", " ")}'
+            # if  "Practice-" in item[0]:
+            #     item[3] += f'{item[0].replace("Practice-", " ")}'
         elif "Wisconsin Elite Hockey League" in item[3]:
             item[3] = "WEHL"
         elif "OWHL" in item[3]:
