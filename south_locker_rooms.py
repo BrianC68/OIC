@@ -169,7 +169,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     '''Adds locker room assignments dynamically to south_rink list.'''
 
     # no locker rooms are needed for these events
-    no_locker_room = ("Public Skate", "Learn to Skate", "Figure Skating")
+    no_locker_room = ("Public Skate", "Learn to Skate", "Open Figure Skating")
     # these customers only need locker rooms during games for visiting teams
     need_game_locker_rooms = ("Cedarburg Hockey", "Homestead Hockey", "Lakeshore Lightning",
                               "Concordia ACHA", "Concordia University Men", "Concordia University Women")
