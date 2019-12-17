@@ -39,7 +39,7 @@ def scrape_oic_schedule(date):
     # The following lines set form fields on the requested page to search for south rink events by date
     browser["ctl00_ContentPlaceHolder1_txtFromDate_dateInput_ClientState"] = '{"enabled":true,"emptyMessage":"","validationText":"'+today_with_time+'","valueAsString":"'+today_with_time+'","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00","lastSetTextBoxValue":"'+xx_xx_xxxx+'"}'
     browser["ctl00_ContentPlaceHolder1_txtThroughDate_dateInput_ClientState"] = '{"enabled":true,"emptyMessage":"","validationText":"'+today_with_time+'","valueAsString":"'+today_with_time+'","minDateStr":"1980-01-01-00-00-00","maxDateStr":"2099-12-31-00-00-00","lastSetTextBoxValue":"'+xx_xx_xxxx+'"}'
-    browser["ctl00_ContentPlaceHolder1_cboSortBy_ClientState"] = '{"logEntries":[],"value":"11","text":"Facility","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
+    browser["ctl00_ContentPlaceHolder1_cboSortBy_ClientState"] = '{"logEntries":[],"value":"2","text":"Start Time","enabled":true,"checkedIndices":[],"checkedItemsTextOverflows":false}'
     browser["ctl00$ContentPlaceHolder1$txtFromDate"] = today
     browser["ctl00$ContentPlaceHolder1$txtFromDate$dateInput"] = xx_xx_xxxx
     browser["ctl00_ContentPlaceHolder1_txtFromDate_calendar_AD"] = '[[1980,1,1],[2099,12,30],['+xxxx_xx_xx+']]'
@@ -61,7 +61,7 @@ def scrape_oic_schedule(date):
         rows = soup.find(class_="clear listTable").find_all('tr')
     except AttributeError:
         return
-
+    print(rows)
     for row in rows:
         cols = row.find_all(attrs={"class": "tableColumn borderRight"})
         if len(cols) > 0:
@@ -169,7 +169,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     '''Adds locker room assignments dynamically to south_rink list.'''
 
     # no locker rooms are needed for these events
-    no_locker_room = ("Public Skate", "Learn to Skate", "Open Figure Skating")
+    no_locker_room = ("Public Skate", "Learn to Skate", "Open Figure Skating", "Kettle Moraine Figure Skating Club")
     # these customers only need locker rooms during games for visiting teams
     need_game_locker_rooms = ("Cedarburg Hockey", "Homestead Hockey", "Lakeshore Lightning",
                               "Concordia ACHA", "Concordia University Men", "Concordia University Women")
