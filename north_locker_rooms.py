@@ -103,7 +103,7 @@ def scrape_oyha_teams(the_date):
     for row in rows:
         cols = row.find_all("td")
         # If it's the header row or it's for South Rink, skip the row
-        if cols[0].get_text().strip() == "Start Time" or cols[3].get_text().strip() in ["South Rink", "South 1", "South3"]:
+        if cols[0].get_text().strip() == "Start Time" or cols[3].get_text().strip() in ["South Rink", "South 1", "South 2"]:
             continue
         else:
             oyha_events.append([cols[0].get_text().strip(), cols[6].get_text().strip(), cols[4].get_text().strip(), cols[3].get_text().strip()])
@@ -219,14 +219,10 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     '''Adds locker room assignments dynamically to north_rink list.'''
 
     # no locker rooms are needed for these events
-    no_locker_room = ("Public Skate", "Learn to Skate", "Open Figure Skating")
+    no_locker_room = ("Public Skate", "Learn to Skate", "Open Figure Skating", "Kettle Moraine Figure Skating Club")
     # these customers only need locker rooms during games for visiting teams
     need_game_locker_rooms = ("Cedarburg Hockey", "Homestead Hockey", "Lakeshore Lightning",
                               "Concordia ACHA", "Concordia University Men", "Concordia University Women")
-    # these events need locker rooms assigned
-    # need_locker_rooms = ("North 1", "North 2", "Camp", "Clinic",
-    #                      "Game", "Tournament", "Practice", "Open Hockey", "Private", "Roller Hockey",
-    #                      "Tryouts")
 
     lr_flag = 0 # This variable is used to toggle which locker room pairs to use
     na_north_flag = "on"
@@ -234,7 +230,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     na_locker_room_flag = False
 
     for (event, _, _, customer) in rink:
-        if event in no_locker_room:
+        if customer in no_locker_room:
             rink[x].append(" ")
             rink[x].append(" ")
             if na_locker_room_flag == False:
@@ -243,7 +239,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
                 else:
                     lr_flag = 0
                 na_locker_room_flag = True
-        elif event not in no_locker_room and customer in need_game_locker_rooms:
+        elif customer not in no_locker_room and customer in need_game_locker_rooms:
             # if the event is a practice do not assign locker rooms
             if event == "Practice":
                 rink[x].append(" ")
@@ -271,7 +267,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
                     lr_flag = 1
                 else:
                     lr_flag = 0
-        elif event not in no_locker_room:
+        elif customer not in no_locker_room:
             if  "Practice" in event and "vs" not in customer and customer != "Learn to Play":
                 if "Mite" in customer:
                     rink[x].append(locker_rooms[lr_flag][1])

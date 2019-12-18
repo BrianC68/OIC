@@ -61,11 +61,11 @@ def scrape_oic_schedule(date):
         rows = soup.find(class_="clear listTable").find_all('tr')
     except AttributeError:
         return
-    print(rows)
+    # print(rows)
     for row in rows:
         cols = row.find_all(attrs={"class": "tableColumn borderRight"})
         if len(cols) > 0:
-            south_rink.append([cols[5].get_text().strip(), cols[0].get_text().strip(), cols[1].get_text().strip(), cols[4].get_text().strip()])
+            south_rink.append([cols[5].get_text().strip(), cols[0].get_text().strip(), cols[1].get_text().strip(), cols[4].get_text().strip(), cols[3].get_text().strip()])
         # print(cols) # Used for testing
     # print(south_rink) # Used for testing
 
@@ -103,7 +103,7 @@ def scrape_oyha_teams(the_date):
         if cols[0].get_text().strip() == "Start Time" or cols[3].get_text().strip() in ["North Rink", "North 1", "North 2", "North 3"]:
             continue
         else:
-            oyha_events.append([cols[0].get_text().strip(), cols[6].get_text().strip(), cols[4].get_text().strip()])
+            oyha_events.append([cols[0].get_text().strip(), cols[6].get_text().strip(), cols[4].get_text().strip(), cols[3].get_text().strip()])
 
     # Merge OYHA team names with south_rink[] list of events
     # If oyha_events[] list is empty, skip the merge
@@ -112,11 +112,15 @@ def scrape_oyha_teams(the_date):
     else:
         for event in oyha_events:
             for item in south_rink:
-                if event[0] == item[1]:
+                if event[0] == item[1] and event[3] == item[4]:
                     if event[2] == "":
                         item[3] = event[1]
                     else:
                         item[3] = f"{event[1]} vs {event[2]}"
+
+    # Remove the rink from the list as it is not needed anymore
+    for item in south_rink:
+        item.pop()
 
     # Replace some strings so the Locker Room Display board displays correctly 
     for item in south_rink:
@@ -173,10 +177,6 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     # these customers only need locker rooms during games for visiting teams
     need_game_locker_rooms = ("Cedarburg Hockey", "Homestead Hockey", "Lakeshore Lightning",
                               "Concordia ACHA", "Concordia University Men", "Concordia University Women")
-    # these events need locker rooms assigned
-    # need_locker_rooms = ("South 1", "South 2", "Camp", "Clinic",
-    #                      "Game", "Tournament", "Practice", "Open Hockey", "Private", "Roller Hockey",
-    #                      "Tryouts")
 
     lr_flag = 0 # This variable is used to toggle which locker room pairs to use
     na_south_flag = "on"
@@ -184,7 +184,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     na_locker_room_flag = False
 
     for (event, _, _, customer) in rink:
-        if event in no_locker_room:
+        if customer in no_locker_room:
             rink[x].append(" ")
             rink[x].append(" ")
             if na_locker_room_flag == False:
@@ -193,7 +193,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
                 else:
                     lr_flag = 0
                 na_locker_room_flag = True
-        elif event not in no_locker_room and customer in need_game_locker_rooms:
+        elif customer not in no_locker_room and customer in need_game_locker_rooms:
             # if the event is a practice do not assign locker rooms
             if event == "Practice":
                 rink[x].append(" ")
@@ -225,7 +225,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
                     lr_flag = 1
                 else:
                     lr_flag = 0
-        elif event not in no_locker_room:
+        elif customer not in no_locker_room:
             if  "Practice" in event and "vs" not in customer and customer != "Learn to Play":
                 if "Mite" in customer:
                     rink[x].append(locker_rooms[lr_flag][1])
