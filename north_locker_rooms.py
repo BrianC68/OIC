@@ -335,10 +335,18 @@ if date.weekday(date.today()) != 5 and date.weekday(date.today()) != 6:
     # get data from OIC schedule website
     scrape_oic_schedule(today)
     # add OYHA teams to north_rink[]
-    scrape_oyha_teams(today)
+    try:
+        scrape_oyha_teams(today)
+    except Exception as e:
+        print(f"{e}, scrape_oyha_teams(today)")
+        pass
     # If it is Friday, add OWHL games to north_rink[]
     if date.weekday(date.today()) == 4:
-        scrape_owhl_teams(today)
+        try:
+            scrape_owhl_teams(today)
+        except Exception as e:
+            print(f"{e}, scrape_owhl_teams(today)")
+            pass
     # add locker rooms to rink schedules
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     # save rink schedules to csv file
@@ -349,14 +357,26 @@ if date.weekday(date.today()) == 4:
     saturday = date.isoformat(date.today() + timedelta(days=1))#.replace("-", "")
     north_rink.clear()
     scrape_oic_schedule(saturday)
-    scrape_oyha_teams(saturday)
+    try:
+        scrape_oyha_teams(saturday)
+    except Exception as e:
+        print(f"{e}, scrape_oyha_teams(saturday)")
+        pass
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     save_schedule_to_file(north_rink, saturday)
 
     sunday = date.isoformat(date.today() + timedelta(days=2))#.replace("-", "")
     north_rink.clear()
     scrape_oic_schedule(sunday)
-    scrape_oyha_teams(sunday)
-    scrape_ochl_games() # OCHL games are only played on Sunday during the winter season
+    try:
+        scrape_oyha_teams(sunday)
+    except Exception as e:
+        print(f"{e}, scrape_oyha_teams(sunday)")
+        pass
+    try:
+        scrape_ochl_games() # OCHL games are only played on Sunday during the winter season
+    except Exception as e:
+        print(f"{e}, scrape_ochl_games(sunday)")
+        pass
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     save_schedule_to_file(north_rink, sunday)
