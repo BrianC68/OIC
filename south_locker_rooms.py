@@ -118,10 +118,6 @@ def scrape_oyha_teams(the_date):
                     else:
                         item[3] = f"{event[1]} vs {event[2]}"
 
-    # Remove the rink from the list as it is not needed anymore
-    for item in south_rink:
-        item.pop()
-
     # Replace some strings so the Locker Room Display board displays correctly 
     for item in south_rink:
         if "Ozaukee Youth Hockey Association" in item[3]:
@@ -296,6 +292,9 @@ if date.weekday(date.today()) != 5 and date.weekday(date.today()) != 6:
         scrape_oyha_teams(today)
     except Exception as e:
         print(f"{e}, scrape_oyha_teams(today)")
+    # Remove rink from south_rink before adding locker room assignments
+    for item in south_rink:
+        item.pop()
     # add locker rooms to rink schedules
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     # save rink schedules to csv files
@@ -310,6 +309,9 @@ if date.weekday(date.today()) == 4:
         scrape_oyha_teams(saturday)
     except Exception as e:
         print(f"{e}, scrape_oyha_teams(saturday)")
+    # Remove rink from south_rink before adding locker room assignments
+    for item in south_rink:
+        item.pop()
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     save_schedule_to_file(south_rink, saturday)
 
@@ -324,5 +326,8 @@ if date.weekday(date.today()) == 4:
         scrape_ochl_games()
     except Exception as e:
         print(f"{e}, scrape_ochl_games(sunday)")
+    # Remove rink from south_rink before adding locker room assignments
+    for item in south_rink:
+        item.pop()
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     save_schedule_to_file(south_rink, sunday)

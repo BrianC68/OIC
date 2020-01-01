@@ -92,9 +92,6 @@ def scrape_oyha_teams(the_date):
 
     # Get all rows from the table
     if len(table) == 0:
-        # Remove the rink from list as it is not needed anymore
-        for item in north_rink:
-            item.pop()
         return
     else:
         rows = table.find_all("tr")
@@ -120,10 +117,6 @@ def scrape_oyha_teams(the_date):
                         item[3] = event[1]
                     else:
                         item[3] = f"{event[1]} vs {event[2]}"
-
-    # Remove the rink from list as it is not needed anymore
-    for item in north_rink:
-        item.pop()
 
     # Replace some strings so the Locker Room Display board displays correctly 
     for item in north_rink:
@@ -228,7 +221,7 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     na_north_flag = "on"
     x = 0  # index of rink list for appending locker room numbers
     na_locker_room_flag = False
-
+    
     for (event, _, _, customer) in rink:
         if customer in no_locker_room:
             rink[x].append(" ")
@@ -347,6 +340,9 @@ if date.weekday(date.today()) != 5 and date.weekday(date.today()) != 6:
         except Exception as e:
             print(f"{e}, scrape_owhl_teams(today)")
             pass
+    # Remove rink from north_rink before adding locker room assignments
+    for item in north_rink:
+        item.pop()
     # add locker rooms to rink schedules
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     # save rink schedules to csv file
@@ -362,6 +358,9 @@ if date.weekday(date.today()) == 4:
     except Exception as e:
         print(f"{e}, scrape_oyha_teams(saturday)")
         pass
+    # Remove rink from north_rink before adding locker room assignments
+    for item in north_rink:
+        item.pop()
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     save_schedule_to_file(north_rink, saturday)
 
@@ -378,5 +377,8 @@ if date.weekday(date.today()) == 4:
     except Exception as e:
         print(f"{e}, scrape_ochl_games(sunday)")
         pass
+    # Remove rink from north_rink before adding locker room assignments
+    for item in north_rink:
+        item.pop()
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     save_schedule_to_file(north_rink, sunday)
