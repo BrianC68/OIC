@@ -52,11 +52,11 @@ def scrape_oic_schedule(date):
     browser["ctl00$ContentPlaceHolder1$cboFacility"] = 'South 1, South 2, South Rink'
 
     response = browser.submit_selected()
-    # print(response.text)
+    html = response.text.replace('</br>', '').replace('<br>', '')
     browser.close()
 
     # Parse the returned page for the days events
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(html, 'html.parser')
     try:
         rows = soup.find(class_="clear listTable").find_all('tr')
     except AttributeError:
@@ -120,7 +120,7 @@ def scrape_oyha_teams(the_date):
 
     # Replace some strings so the Locker Room Display board displays correctly 
     for item in south_rink:
-        if "Ozaukee Youth Hockey Association" in item[3]:
+        if "Ozaukee Youth Hockey Association" in item[3] or item[3] == "":
             item[3] = "OYHA"
             # Adds teams who are practicing to display
             # if  "Practice-" in item[0]:
@@ -136,7 +136,7 @@ def scrape_ochl_games():
 
     ochl_games = [] # List that will hold OCHL game data for South Rink
 
-    url = "https://www.ozaukeeicecenter.org/schedule/day/league_instance/102447?subseason=633604"
+    url = "https://www.ozaukeeicecenter.org/schedule/day/league_instance/128332?subseason=714101"
     response = requests.get(url)
 
     soup = BeautifulSoup(response.text, "html.parser")
@@ -152,7 +152,7 @@ def scrape_ochl_games():
     for row in rows:
         cols = row.find_all("td")
         if "South Rink" in cols[4].get_text():
-            ochl_games.append([cols[2].find("a").get_text(), cols[0].find("a").get_text(), cols[4].find("div").get_text().strip(), cols[5].find("span").get_text().strip(" CST")])
+            ochl_games.append([cols[2].find("a").get_text(), cols[0].find("a").get_text(), cols[4].find("div").get_text().strip(), cols[5].find("span").get_text().strip(" CDT").strip(" CST")])
 
     # Merge OCHL games with south_rink[] list of events
     # If ochl_games[] list is empty, skip the merge
@@ -180,7 +180,12 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     na_locker_room_flag = False
 
     for (event, _, _, customer) in rink:
-        if customer in no_locker_room:
+        if event == "Practice": # Added this check for COVID-19, remove when locker rooms are assigned to practices again.
+            rink[x].append(" ")
+            rink[x].append(" ")
+            x += 1
+            continue
+        elif customer in no_locker_room:
             rink[x].append(" ")
             rink[x].append(" ")
             if na_locker_room_flag == False:
@@ -269,32 +274,37 @@ def save_schedule_to_file(south, date):
             writer.writerow(line)
         # print("South locker rooms saved.")
 
+###################### THIS SECTION CAN BE USED TO GET SCHEDULES FOR THE ENTIRE WEEK ######################
+
 # week = [today] # holds days of week in the format needed for scrap_oic_schedule() and save_schedule_to_file()
 
 # Append six more days to week[]
 # for x in range(1, 7):
 #     week.append(date.isoformat(date.today() + timedelta(days=x)).replace("-", ""))
 
-###################### THIS SECTION CAN BE USED TO GET SCHEDULES FOR THE ENTIRE WEEK ######################
 # Save locker room schedules for the week, Monday through Sunday
 # for day in week:
 #     scrape_oic_schedule(day)
 #     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
 #     save_schedule_to_file(south_rink, day)
 #     south_rink.clear()
+###########################################################################################################
 
 # If it is not Saturday or Sunday, scrape and save the schedule to file
 if date.weekday(date.today()) != 5 and date.weekday(date.today()) != 6:
     # get data from OIC schedule website
     scrape_oic_schedule(today)
     # add OYHA teams to south_rink[]
-    try:
-        scrape_oyha_teams(today)
-    except Exception as e:
-        print(f"{e}, scrape_oyha_teams(today)")
+    # try:
+    #     scrape_oyha_teams(today)
+    # except Exception as e:
+    #     print(f"{e}, scrape_oyha_teams(today)")
     # Remove rink from south_rink before adding locker room assignments
     for item in south_rink:
         item.pop()
+        # Add blank locker room assignments
+        # item.append('')
+        # item.append('')
     # add locker rooms to rink schedules
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     # save rink schedules to csv files
@@ -305,23 +315,26 @@ if date.weekday(date.today()) == 4:
     saturday = date.isoformat(date.today() + timedelta(days=1))
     south_rink.clear()
     scrape_oic_schedule(saturday)
-    try:
-        scrape_oyha_teams(saturday)
-    except Exception as e:
-        print(f"{e}, scrape_oyha_teams(saturday)")
+    # try:
+    #     scrape_oyha_teams(saturday)
+    # except Exception as e:
+    #     print(f"{e}, scrape_oyha_teams(saturday)")
     # Remove rink from south_rink before adding locker room assignments
     for item in south_rink:
         item.pop()
+        # Add blank locker room assignments
+        # item.append('')
+        # item.append('')
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     save_schedule_to_file(south_rink, saturday)
 
     sunday = date.isoformat(date.today() + timedelta(days=2))
     south_rink.clear()
     scrape_oic_schedule(sunday)
-    try:
-        scrape_oyha_teams(sunday)
-    except Exception as e:
-        print(f"{e}, scrape_oyha_teams(sunday)")
+    # try:
+    #     scrape_oyha_teams(sunday)
+    # except Exception as e:
+    #     print(f"{e}, scrape_oyha_teams(sunday)")
     try:
         scrape_ochl_games()
     except Exception as e:
@@ -329,5 +342,8 @@ if date.weekday(date.today()) == 4:
     # Remove rink from south_rink before adding locker room assignments
     for item in south_rink:
         item.pop()
+        # Add blank locker room assignments
+        # item.append('')
+        # item.append('')
     add_locker_rooms_to_schedule(south_locker_rooms, south_rink)
     save_schedule_to_file(south_rink, sunday)

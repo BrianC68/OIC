@@ -12,7 +12,7 @@ import os
 months = {"01": "January", "02": "February", "03": "March", "04": "April", "05": "May", 
             "06": "June", "07": "July", "08": "August", "09": "September", "10": "October", "11": "November", "12": "December"}
 
-# today = "2019-11-21" # Used for testing a particular date
+# today = "2020-10-16" # Used for testing a particular date
 today = date.isoformat(date.today())
 
 north_rink = []  # list that will hold north rink daily schedule
@@ -47,15 +47,15 @@ def scrape_oic_schedule(date):
     browser["ctl00$ContentPlaceHolder1$txtThroughDate$dateInput"] = xx_xx_xxxx
     browser["ctl00_ContentPlaceHolder1_txtThroughDate_calendar_AD"] = '[[1980,1,1],[2099,12,30],['+xxxx_xx_xx+']]'
     browser["ctl00_ContentPlaceHolder1_txtThroughDate_calendar_SD"] = '[['+xxxx_xx_xx+']]'
-    browser["ctl00_ContentPlaceHolder1_cboFacility_ClientState"] = '{"logEntries":[],"value":"","text":"3 items checked","enabled":true,"checkedIndices":[4,1,2],"checkedItemsTextOverflows":true}'
-    browser["ctl00$ContentPlaceHolder1$cboFacility"] = 'North 1, North 2, North Rink'
+    browser["ctl00_ContentPlaceHolder1_cboFacility_ClientState"] = '{"logEntries":[],"value":"","text":"3 items checked","enabled":true,"checkedIndices":[1,2,3,4],"checkedItemsTextOverflows":true}'
+    browser["ctl00$ContentPlaceHolder1$cboFacility"] = 'North 1, North 2, North 3, North Rink'
 
     response = browser.submit_selected()
-    # print(response.text)
+    html = response.text.replace('</br>', '').replace('<br>', '')
     browser.close()
 
     # Parse the returned page for the days events
-    soup = BeautifulSoup(response.text, 'html.parser')
+    soup = BeautifulSoup(html, 'html.parser')
     try:
         rows = soup.find(class_="clear listTable").find_all('tr')
     except AttributeError:
@@ -120,7 +120,7 @@ def scrape_oyha_teams(the_date):
 
     # Replace some strings so the Locker Room Display board displays correctly 
     for item in north_rink:
-        if "Ozaukee Youth Hockey Association" in item[3]:
+        if "Ozaukee Youth Hockey Association" in item[3] or item[3] == "":
             item[3] = "OYHA"
             # Adds teams who are practicing to display
             # if  "Practice-" in item[0]:
@@ -136,7 +136,7 @@ def scrape_ochl_games():
 
     ochl_games = [] # List that will hold OCHL game data for North Rink
 
-    url = "https://www.ozaukeeicecenter.org/schedule/day/league_instance/102447?subseason=633604"
+    url = "https://www.ozaukeeicecenter.org/schedule/day/league_instance/128332?subseason=714101"
     response = requests.get(url)
 
     soup = BeautifulSoup(response.text, "html.parser")
@@ -152,7 +152,7 @@ def scrape_ochl_games():
     for row in rows:
         cols = row.find_all("td")
         if "North Rink" in cols[4].get_text():
-            ochl_games.append([cols[2].find("a").get_text(), cols[0].find("a").get_text(), cols[4].find("div").get_text().strip(), cols[5].find("span").get_text().strip(" CST")])
+            ochl_games.append([cols[2].find("a").get_text(), cols[0].find("a").get_text(), cols[4].find("div").get_text().strip(), cols[5].find("span").get_text().strip(" CDT").strip(" CST")])
 
     # Merge OCHL games with north_rink[] list of events
     # If ochl_games[] list is empty, skip the merge
@@ -171,8 +171,9 @@ def scrape_owhl_teams(the_date):
     owhl_events = [] # list that will hold OWHL teams to merge with north_rink[]
     today_split = the_date.split("-")
     today_string = f"{months[today_split[1]]} {today_split[2].lstrip('0')}, {today_split[0]}"
+    table = None
 
-    url = "https://ozaukeeicecenter.maxgalaxy.net/LeagueScheduleList.aspx?ID=4"
+    url = "https://ozaukeeicecenter.maxgalaxy.net/LeagueScheduleList.aspx?ID=17"
     response = requests.get(url)
 
     # Request the web page
@@ -223,6 +224,11 @@ def add_locker_rooms_to_schedule(locker_rooms, rink):
     na_locker_room_flag = False
     
     for (event, _, _, customer) in rink:
+        if 'Practice' in event:
+            rink[x].append(" ")
+            rink[x].append(" ")
+            x += 1
+            continue
         if customer in no_locker_room:
             rink[x].append(" ")
             rink[x].append(" ")
@@ -328,11 +334,11 @@ if date.weekday(date.today()) != 5 and date.weekday(date.today()) != 6:
     # get data from OIC schedule website
     scrape_oic_schedule(today)
     # add OYHA teams to north_rink[]
-    try:
-        scrape_oyha_teams(today)
-    except Exception as e:
-        print(f"{e}, scrape_oyha_teams(today)")
-        pass
+    # try:
+    #     scrape_oyha_teams(today)
+    # except Exception as e:
+    #     print(f"{e}, scrape_oyha_teams(today)")
+    #     pass
     # If it is Friday, add OWHL games to north_rink[]
     if date.weekday(date.today()) == 4:
         try:
@@ -343,6 +349,9 @@ if date.weekday(date.today()) != 5 and date.weekday(date.today()) != 6:
     # Remove rink from north_rink before adding locker room assignments
     for item in north_rink:
         item.pop()
+        # Add blank locker room assignments ## This was added for COVID-19, no locker room assignments at all, 1-4-21, adding back game locker rooms
+        # item.append('')
+        # item.append('')
     # add locker rooms to rink schedules
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     # save rink schedules to csv file
@@ -353,25 +362,28 @@ if date.weekday(date.today()) == 4:
     saturday = date.isoformat(date.today() + timedelta(days=1))#.replace("-", "")
     north_rink.clear()
     scrape_oic_schedule(saturday)
-    try:
-        scrape_oyha_teams(saturday)
-    except Exception as e:
-        print(f"{e}, scrape_oyha_teams(saturday)")
-        pass
+    # try:
+    #     scrape_oyha_teams(saturday)
+    # except Exception as e:
+    #     print(f"{e}, scrape_oyha_teams(saturday)")
+    #     pass
     # Remove rink from north_rink before adding locker room assignments
     for item in north_rink:
         item.pop()
+        # Add blank locker room assignments ## This was added for COVID-19, no locker room assignments at all, 1-4-21, adding back game locker rooms
+        # item.append('')
+        # item.append('')
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     save_schedule_to_file(north_rink, saturday)
 
     sunday = date.isoformat(date.today() + timedelta(days=2))#.replace("-", "")
     north_rink.clear()
     scrape_oic_schedule(sunday)
-    try:
-        scrape_oyha_teams(sunday)
-    except Exception as e:
-        print(f"{e}, scrape_oyha_teams(sunday)")
-        pass
+    # try:
+    #     scrape_oyha_teams(sunday)
+    # except Exception as e:
+    #     print(f"{e}, scrape_oyha_teams(sunday)")
+    #     pass
     try:
         scrape_ochl_games() # OCHL games are only played on Sunday during the winter season
     except Exception as e:
@@ -380,5 +392,8 @@ if date.weekday(date.today()) == 4:
     # Remove rink from north_rink before adding locker room assignments
     for item in north_rink:
         item.pop()
+        # Add blank locker room assignments
+        # item.append('')
+        # item.append('')
     add_locker_rooms_to_schedule(north_locker_rooms, north_rink)
     save_schedule_to_file(north_rink, sunday)

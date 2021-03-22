@@ -1,8 +1,9 @@
 from tkinter import Tk, Frame, Label, LEFT, BOTH, W, E, S, N, TOP, BOTTOM
 from PIL import ImageTk
-import csv
+# import csv
 from datetime import date
 import os
+import requests
 
 today = date.isoformat(date.today()).replace("-", "")
 display_date = f"{today[4:6]}-{today[6:]}-{today[0:4]}"
@@ -12,11 +13,11 @@ font_size = 28
 # Set correct path for Windows and Raspberry Pi(Linux)
 if os.name == "nt":
     logo_path = "C:\\Users\\brian\\Documents\\Python\\OIC\\oz_ice_logo.jpg"
-    file_path = f"C:\\Users\\brian\\Documents\\Python\\OIC\\south\\south_lrs_{today}.csv"
+    # file_path = f"C:\\Users\\brian\\Documents\\Python\\OIC\\south\\south_lrs_{today}.csv"
     msg_path = "C:\\Users\\brian\\Documents\\Python\\OIC\\messages\\"
 else:
     logo_path = "/home/pi/OIC/oz_ice_logo.jpg"
-    file_path = f"/home/pi/OIC/south/south_lrs_{today}.csv"
+    # file_path = f"/home/pi/OIC/south/south_lrs_{today}.csv"
     msg_path = "/home/pi/OIC/messages/"
 
 days_of_the_week = {0:"Monday", 1:"Tuesday", 2:"Wednesday", 3:"Thursday", 4:"Friday", 5:"Saturday", 6:"Sunday"}
@@ -60,20 +61,33 @@ visitor_lr_title.grid(row=1, column=4, ipady=10, sticky=W+E)
 events=[] # list that will hold the days events
 
 # Open CSV file with events and locker room assignments
+# try:
+#     with open(file_path, "r") as thefile:
+#         filereader = csv.reader(thefile)
+#         for row in filereader:
+#             events.append(row)
+#         thefile.close()
+#     # If the days events exceed 12, reduce font size to 24
+#     if len(events) == 13:
+#         font_size = 24
+#     elif len(events) > 13:
+#         font_size = 20
+# except FileNotFoundError:
+#     err_message = Label(mainframe, text="File not found error, call or text Brian Christensen @ 262.339.4402", font=(font, font_size, "bold"), bg="#ffffff", fg="red")
+#     err_message.grid(row=2, columnspan=6, sticky=S, ipady=10)
+
 try:
-    with open(file_path, "r") as thefile:
-        filereader = csv.reader(thefile)
-        for row in filereader:
-            events.append(row)
-        thefile.close()
-    # If the days events exceed 12, reduce font size to 24
-    if len(events) == 13:
-        font_size = 24
-    elif len(events) > 13:
-        font_size = 20
-except FileNotFoundError:
-    err_message = Label(mainframe, text="File not found error, call or text Brian Christensen @ 262.339.4402", font=(font, font_size, "bold"), bg="#ffffff", fg="red")
+    res = requests.get('https://www.oicwebapps.com/web_apps/schedule/api/')
+    data = res.json()
+except:
+    err_message = Label(mainframe, text="Something went wrong, call or text Brian Christensen @ 262.339.4402", font=(font, font_size, "bold"), bg="#ffffff", fg="red")
     err_message.grid(row=2, columnspan=6, sticky=S, ipady=10)
+
+events = []
+
+for item in data:
+    if "South" in item["rink"]:
+        events.append([item["start_time"], item["end_time"], item["event"], item["home_locker_room"], item["visitor_locker_room"]])
 
 # loop through the days events and add them to the display
 x = 2 # Use x to start events in row 2 of the grid
@@ -86,11 +100,11 @@ fg_color = white
 # Create rows of the days events, alternating BG color and FG color
 for event in events:
     for row in event:
-        start = Label(mainframe, text=f"{event[1]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
-        end = Label(mainframe, text=f"{event[2]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
-        customer = Label(mainframe, text=f"{event[3]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
-        home_lr = Label(mainframe, text=f"{event[4]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
-        visitor_lr = Label(mainframe, text=f"{event[5]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        start = Label(mainframe, text=f"{event[0]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        end = Label(mainframe, text=f"{event[1]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        customer = Label(mainframe, text=f"{event[2]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        home_lr = Label(mainframe, text=f"{event[3]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        visitor_lr = Label(mainframe, text=f"{event[4]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
 
         start.grid(row=x, column=0, ipady=5, sticky=W+E)
         end.grid(row=x, column=1, ipady=5, sticky=W+E)

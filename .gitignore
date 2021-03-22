@@ -1,9 +1,8 @@
 north/
 south/
 old/
+messages-old/
 .vscode
-north_locker_rooms_old.py
-north_locker_rooms_new_scrape.py
-south_locker_rooms_old.py
-south_locker_rooms_new_scrape.py
-ScheduleApp.py
+fetch_schedule.py
+display_north_lrs_CSV.py
+display_south_lrs_CSV.py
