@@ -7,6 +7,8 @@ import requests
 
 today = date.isoformat(date.today()).replace("-", "")
 display_date = f"{today[4:6]}-{today[6:]}-{today[0:4]}"
+if display_date[0] == "0":
+    display_date = display_date[1:]
 font = "Verdana"
 font_size = 28
 
@@ -99,11 +101,21 @@ fg_color = white
 
 # Create rows of the days events, alternating BG color and FG color
 for event in events:
+    # print(event[0][1:])
+    # print(event[1][1:])
     for row in event:
+        if event[0][0] == "0":
+            event[0] = event[0][1:]
         start = Label(mainframe, text=f"{event[0]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        if event[1][0] == "0":
+            event[1] = event[1][1:]
         end = Label(mainframe, text=f"{event[1]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
         customer = Label(mainframe, text=f"{event[2]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        if event[3] == None:
+            event[3] = ""
         home_lr = Label(mainframe, text=f"{event[3]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
+        if event[4] == None:
+            event[4] = ""
         visitor_lr = Label(mainframe, text=f"{event[4]}", font=(font, font_size, "bold"), bg=f"{bg_color}", fg=f"{fg_color}")
 
         start.grid(row=x, column=0, ipady=5, sticky=W+E)
