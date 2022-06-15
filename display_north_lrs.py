@@ -135,7 +135,7 @@ concessions = Label(mainframe, text="<<< Concessions in South Lobby", font=(font
 concessions.grid(row=x+1, column=0, columnspan=2, ipady=10)
 creator = Label(mainframe, text="Programmed in Python by Brian Christensen for the Ozaukee Ice Center", font=(font, 14, "bold"), bg="#ffffff")
 creator.grid(row=x+1, column=2, ipady=10)
-proshop = Label(mainframe, text="Proshop in North Lobby >>>", font=(font, 14, "bold"), bg="#ffffff")
+proshop = Label(mainframe, text="Office in North Lobby >>>", font=(font, 14, "bold"), bg="#ffffff")
 proshop.grid(row=x+1, column=3, columnspan=2, ipady=10)
 
 def show_msg():
